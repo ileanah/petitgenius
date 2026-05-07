@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petit Genius | AI-Powered Learning Atelier</title>
+    <!-- Importing Outfit as a high-quality alternative to Google Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --klein-blue: #002FA7;
+            --white: #FFFFFF;
+            --dark-grey: #243E36;
+            --raspberry: #D81E5B;
+            --aquamarine: #B5FFE1;
+            --powder-blue: #A4B0F5;
+            --font-main: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--white);
+            color: var(--dark-grey);
+            line-height: 1.6;
+        }
+
+        /* NAVIGATION MENU WITH TABS */
+        nav {
+            background-color: var(--white);
+            height: 90px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-box {
+            background-color: var(--klein-blue);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: -0.5px;
+            text-transform: lowercase;
+        }
+        
+        .logo-box span {
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-tab {
+            text-decoration: none;
+            color: var(--dark-grey);
+            font-weight: 600;
+            font-size: 1.1rem;
+            position: relative;
+            padding: 10px 0;
+            transition: color 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            color: var(--klein-blue);
+        }
+
+        .nav-tab.active {
+            color: var(--klein-blue);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--klein-blue);
+            border-radius: 2px;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            background-color: var(--klein-blue);
+            color: var(--white);
+            padding: 100px 10%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            font-size: 1.4rem;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            color: var(--powder-blue);
+            font-weight: 300;
+        }
+
+        .btn-main {
+            background-color: var(--raspberry);
+            color: white;
+            padding: 18px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-block;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        /* CONTENT SECTIONS */
+        section {
+            padding: 80px 10%;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        h2 {
+            color: var(--klein-blue);
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-box {
+            background-color: var(--aquamarine);
+            padding: 30px;
+            border-radius: 20px;
+            margin-top: 30px;
+            border-left: 8px solid var(--klein-blue);
+        }
+
+        /* INTERACTIVE GAME SECTION (QUIZZES TAB) */
+        #quizzes {
+            background-color: #f9f9f9;
+            display: none; /* Controlled by JS */
+        }
+
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .game-canvas {
+            width: 100%;
+            height: 350px;
+            background-color: var(--dark-grey);
+            border-radius: 20px;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-canvas p {
+            color: var(--powder-blue);
+            font-style: italic;
+        }
+
+        .shape-node {
+            position: absolute;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        /* FOOTER */
+        footer {
+            background-color: var(--dark-grey);
+            color: white;
+            padding: 60px 10%;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .about-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 2.5rem; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo-area">
+            <div class="logo-box">petit<span>GENIUS</span>.ai</div>
+        </div>
+        <div class="nav-links">
+            <a href="javascript:void(0)" class="nav-tab active" onclick="switchTab('about', this)">About Us</a>
+            <a href="javascript:void(0)" class="nav-tab" onclick="switchTab('quizzes', this)">Try Our Test Games</a>
+        </div>
+        <a href="#contact" class="btn-main" style="padding: 10px 25px; font-size: 0.9rem;">Get Early Access</a>
+    </nav>
+
+    <div id="about-section">
+        <section class="hero">
+            <h1>The Architect of <br>Your Child's Inner Genius</h1>
+            <p>An AI-powered "Learning Atelier" synthesizing Montessori, Singapore Math, and French pedagogies for a screen-free, high-aesthetic childhood.</p>
+            <button class="btn-main" onclick="document.querySelector('[onclick*='quizzes']').click()">Try the Atelier Games</button>
+        </section>
+
+        <section id="about" class="about-grid">
+            <div>
+                <h2>The Petit Genius Philosophy</h2>
+                <p>Unlike apps that replace the parent, Petit Genius empowers you to be the architect. We provide the plan, the materials, and the values-based narrative to make every interaction meaningful.</p>
+                <div class="feature-box">
+                    <strong>Screen-Free Learning</strong>
+                    <p>Designed for children aged 3–10, focusing on physical materials and parent-led engagement.</p>
+                </div>
+            </div>
+            <div style="background: var(--powder-blue); height: 400px; border-radius: 30px; display: flex; align-items: center; justify-content: center; color: var(--klein-blue); font-size: 5rem;">
+                🎨
+            </div>
+        </section>
+    </div>
+
+    <div id="quizzes-section" style="display: none;">
+        <section id="quizzes">
+            <div class="game-container">
+                <h2>The Pattern Atelier</h2>
+                <p>A teaser of our pedagogical logic games. Help the AI identify the sequence!</p>
+                
+                <div class="game-canvas" id="canvas">
+                    <p id="game-status">Click "Start Pattern" to begin</p>
+                </div>
+
+                <div style="display: flex; gap: 20px; justify-content: center;">
+                    <button class="btn-main" style="background-color: var(--klein-blue);" onclick="startPattern()">Start Pattern</button>
+                    <button class="btn-main" onclick="resetGame()">Reset</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="logo-box" style="display: inline-block; margin-bottom: 20px;">petit<span>GENIUS</span>.ai</div>
+        <p>&copy; 2024 Petit Genius AI. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function switchTab(tabName, el) {
+            // Handle Tab Buttons
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+
+            // Handle Sections
+            if(tabName === 'about') {
+                document.getElementById('about-section').style.display = 'block';
+                document.getElementById('quizzes-section').style.display = 'none';
+            } else {
+                document.getElementById('about-section').style.display = 'none';
+                document.getElementById('quizzes-section').style.display = 'block';
+            }
+            window.scrollTo(0,0);
+        }
+
+        // Game Logic
+        const canvas = document.getElementById('canvas');
+        const status = document.getElementById('game-status');
+        const gameColors = ['#D81E5B', '#B5FFE1', '#A4B0F5', '#002FA7'];
+
+        function startPattern() {
+            canvas.innerHTML = '';
+            status.style.display = 'none';
+            for(let i=0; i<6; i++) {
+                setTimeout(() => {
+                    const shape = document.createElement('div');
+                    shape.className = 'shape-node';
+                    const size = 60;
+                    shape.style.width = size + 'px';
+                    shape.style.height = size + 'px';
+                    shape.style.backgroundColor = gameColors[Math.floor(Math.random() * gameColors.length)];
+                    shape.style.borderRadius = Math.random() > 0.5 ? '50%' : '10%';
+                    shape.style.left = (20 + (i * 12)) + '%';
+                    shape.style.top = (30 + (Math.sin(i) * 20)) + '%';
+                    
+                    shape.onclick = function() {
+                        this.style.transform = 'scale(1.5) rotate(45deg)';
+                        this.style.opacity = '0';
+                        setTimeout(() => this.remove(), 500);
+                    };
+
+                    canvas.appendChild(shape);
+                }, i * 200);
+            }
+        }
+
+        function resetGame() {
+            canvas.innerHTML = '<p id="game-status">Click "Start Pattern" to begin</p>';
+        }
+    </script>
+</body>
+</html>
