@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petit Genius | Dino Logic Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --klein-blue: #002FA7;
+            --aquamarine: #B5FFE1;
+            --raspberry: #D81E5B;
+            --powder-blue: #A4B0F5;
+            --white: #FFFFFF;
+            --dark-slate: #243E36;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--klein-blue);
+            color: var(--white);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #quiz-container {
+            background: var(--white);
+            color: var(--dark-slate);
+            width: 100%;
+            max-width: 650px;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #eee;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            height: 100%;
+            background: var(--raspberry);
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        h2 { color: var(--klein-blue); font-size: 1.6rem; margin-top: 0; line-height: 1.3; }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .option-btn {
+            padding: 18px 20px;
+            border: 2px solid #edf2f7;
+            border-radius: 18px;
+            background: #f8fafc;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1.05rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            color: var(--dark-slate);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option-btn:hover:not(:disabled) { 
+            border-color: var(--powder-blue); 
+            transform: translateY(-2px);
+            background: #fff;
+        }
+
+        .correct { background-color: var(--aquamarine) !important; border-color: #2ecc71 !important; }
+        .wrong { background-color: #ffe5e5 !important; border-color: var(--raspberry) !important; }
+
+        #feedback-area {
+            margin-top: 25px;
+            padding: 25px;
+            border-radius: 20px;
+            background: #f0f7ff;
+            border-left: 5px solid var(--klein-blue);
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .feedback-header { font-weight: 800; color: var(--klein-blue); margin-bottom: 8px; display: block; }
+
+        .next-btn {
+            background: var(--klein-blue);
+            color: var(--white);
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-weight: 800;
+            cursor: pointer;
+            float: right;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .next-btn:hover { transform: scale(1.05); background: var(--dark-slate); }
+
+        .score-screen { text-align: center; }
+        .result-emoji { font-size: 4rem; margin-bottom: 10px; display: block; }
+    </style>
+</head>
+<body>
+
+<div id="quiz-container">
+    <div class="progress-bar"><div id="progress-fill"></div></div>
+    <div id="quiz-content"></div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            q: "Dinosaurs first appeared in the Triassic period. 🌍 When exactly was this?",
+            a: ["230 Million years ago ⏳", "300,000 Million years ago ❌", "10,000 years ago 🦴", "66 Million years ago ☄️"],
+            correct: 0,
+            info: "Correct! They appeared about 230-250 million years ago. Earth is 4.5 billion years old, so 300,000 million would be way older than the planet!"
+        },
+        {
+            q: "The word 'Dinosaur' has a scary meaning. 🦖 What is it?",
+            a: ["Flying Dragon 🐉", "Ancient Giant ⛰️", "Terrible Lizard 🦎", "Fast Hunter 🏹"],
+            correct: 2,
+            info: "In 1842, it was named from Greek 'Deinos' (terrible) and 'Sauros' (lizard). They weren't actually lizards, but they looked like them!"
+        },
+        {
+            q: "Dinosaurs walked differently than crocodiles. 🐊 How were their legs positioned?",
+            a: ["Out to the sides ↔️", "Straight under the body ⬇️", "They hopped like frogs 🐸", "On top of their backs 🔄"],
+            correct: 1,
+            info: "By having legs straight under them, dinosaurs could support huge weights and run much faster than other reptiles."
+        },
+        {
+            q: "During the Triassic, all land was one big puzzle piece. 🧩 What was it called?",
+            a: ["Pangea 🗺️", "Atlantis 🌊", "The Big Island 🏝️", "Jurassic World 🎬"],
+            correct: 0,
+            info: "Pangea was a 'Supercontinent.' This allowed dinosaurs to walk to every part of the world before the continents drifted apart."
+        },
+        {
+            q: "What do we call a scientist who digs for dinosaur fossils? ⛏️",
+            a: ["Astronaut 🚀", "Paleontologist 🕵️‍♂️", "Doctor 🩺", "History Teacher 📚"],
+            correct: 1,
+            info: "Paleontologists use tiny brushes and picks to save fossils from the rock without breaking them."
+        },
+        {
+            q: "Which dinosaur was a 'Herbivore' (Plant-eater)? 🌿",
+            a: ["T-Rex 🥩", "Velociraptor 🍗", "Diplodocus 🍃", "Spinosaurus 🐟"],
+            correct: 2,
+            info: "Diplodocus had a long neck to reach the top of trees, just like a modern giraffe!"
+        },
+        {
+            q: "The Triceratops was a famous 'three-horned' dinosaur. 🛡️ How did it protect its neck?",
+            a: ["With a metal collar ⛓️", "With a bony Frill 🦴", "By hiding in the mud 🕳️", "It didn't have a neck 🧣"],
+            correct: 1,
+            info: "The frill was a giant shield made of bone that protected its neck from the sharp teeth of predators."
+        },
+        {
+            q: "Which dinosaur had armor plates on its back and a spiked tail? 🛡️",
+            a: ["Stegosaurus 🗡️", "Gallimimus 🏃", "Iguanodon 👍", "Ankylosaurus 🔨"],
+            correct: 0,
+            info: "The Stegosaurus had 17 bony plates. They might have been used for protection or to show off to other dinosaurs!"
+        },
+        {
+            q: "The Ankylosaurus was like a living tank. 🦾 What was at the end of its tail?",
+            a: ["A sharp sword ⚔️", "A heavy bone club 🪩", "A fluffy pom-pom 🎈", "A second head 🐲"],
+            correct: 1,
+            info: "The tail club of an Ankylosaurus could break the legs of a T-Rex with one swing!"
+        },
+        {
+            q: "Dinosaurs laid eggs. 🥚 Where did they usually put them?",
+            a: ["In nests on the ground 🪺", "In the tops of trees 🌳", "Underwater 🌊", "They carried them in pouches 🦘"],
+            correct: 0,
+            info: "Most dinosaurs built nests in the dirt. Some even sat on their eggs to keep them warm, just like birds!"
+        },
+        {
+            q: "The Tyrannosaurus Rex had a very strong bite. 💪 What were its arms like?",
+            a: ["Long and powerful 🦾", "Very small and short 🤏", "It had wings instead 🦅", "They reached the ground 👐"],
+            correct: 1,
+            info: "Despite being huge, T-Rex arms were very short. They were still strong, but it used its giant head to do most of the work!"
+        },
+        {
+            q: "The Iguanodon had a very strange 'thumb'. 🤙 What was it?",
+            a: ["A soft finger 🖐️", "A sharp spike 📍", "A suction cup 🐙", "A lucky charm 🍀"],
+            correct: 1,
+            info: "The Iguanodon used its thumb spike to defend itself and to break open tough seeds or fruit."
+        },
+        {
+            q: "Which dinosaur was known for being one of the smartest and fastest hunters? 🧠",
+            a: ["Brachiosaurus 🦕", "Velociraptor ⚡", "Parasaurolophus 📣", "Stegosaurus 💤"],
+            correct: 1,
+            info: "Velociraptors were small but very clever. They had a large brain compared to their body size!"
+        },
+        {
+            q: "The Brachiosaurus was so tall it could look into a 4-story window! 🏗️ What was special about its nose?",
+            a: ["It was on top of its head 👃", "It didn't have one 😶", "It was 3 meters long 🐘", "It glowed in the dark 💡"],
+            correct: 0,
+            info: "Its nostrils were on the very top of its head! Scientists once thought this was for snorkeling underwater."
+        },
+        {
+            q: "How do we know what dinosaur skin looked like? 🖐️",
+            a: ["From photos 📸", "From skin fossils/impressions 🪨", "We just guess everything ❓", "From frozen dinosaurs ❄️"],
+            correct: 1,
+            info: "Rare fossils show us 'skin impressions'—we know some had scales like lizards and many had feathers like birds!"
+        },
+        {
+            q: "Dinosaurs lived on land. 🏝️ What were the 'Pterosaurs' that lived at the same time?",
+            a: ["Flying Dinosaurs 🦖", "Flying Reptiles 🦇", "Giant Insects 🐝", "Alien birds 👽"],
+            correct: 1,
+            info: "Common mistake! Pterosaurs lived with dinosaurs, but they are a separate group of flying reptiles."
+        },
+        {
+            q: "What is the most likely cause of the dinosaur extinction? ☄️",
+            a: ["A massive volcano 🌋", "A giant asteroid impact 💥", "A world-wide flood 🌊", "The Ice Age ❄️"],
+            correct: 1,
+            info: "66 million years ago, a 10km-wide asteroid hit Mexico, causing fires and blocking the sun for a long time."
+        },
+        {
+            q: "When the sun was blocked by dust after the asteroid, what happened first? ☁️",
+            a: ["Plants died out 🥀", "Dinosaurs got cold 🧣", "The moon disappeared 🌙", "Oceans dried up 🏜️"],
+            correct: 0,
+            info: "Without sunlight, plants couldn't grow. When the plants died, the plant-eaters had no food, and then the meat-eaters had no food either."
+        },
+        {
+            q: "Which period marked the very END of the dinosaur age? 🏁",
+            a: ["Triassic 🌅", "Jurassic 🌴", "Cretaceous 🌋", "Victorian 🎩"],
+            correct: 2,
+            info: "The Cretaceous period was the finale. It ended 66 million years ago with the Great Extinction."
+        },
+        {
+            q: "Are all dinosaurs extinct today? 🧐",
+            a: ["Yes, every single one ⚰️", "No, birds are dinosaurs 🐦", "No, they live in the ocean 🌊", "Yes, except for crocodiles 🐊"],
+            correct: 1,
+            info: "You probably see dinosaurs every day! Modern birds evolved from small feathered dinosaurs and are part of the same family tree."
+        }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+
+    function loadQuestion() {
+        const data = quizData[currentQ];
+        const progress = (currentQ / quizData.length) * 100;
+        document.getElementById('progress-fill').style.width = `${progress}%`;
+
+        let html = `<h2>Q${currentQ + 1}: ${data.q}</h2><div class="options-grid">`;
+        data.a.forEach((opt, idx) => {
+            html += `<button class="option-btn" onclick="checkAnswer(${idx})"><span>${opt}</span></button>`;
+        });
+        html += `</div><div id="feedback-area"></div>`;
+        document.getElementById('quiz-content').innerHTML = html;
+    }
+
+    window.checkAnswer = function(idx) {
+        const data = quizData[currentQ];
+        const btns = document.querySelectorAll('.option-btn');
+        const feedback = document.getElementById('feedback-area');
+        
+        btns.forEach(btn => btn.disabled = true);
+        
+        if(idx === data.correct) {
+            btns[idx].classList.add('correct');
+            score++;
+        } else {
+            btns[idx].classList.add('wrong');
+            btns[data.correct].classList.add('correct');
+        }
+
+        feedback.style.display = 'block';
+        feedback.innerHTML = `
+            <span class="feedback-header">${idx === data.correct ? '✨ Brilliant Logic!' : '🔍 Discovery Note:'}</span>
+            <p>${data.info}</p>
+            <button class="next-btn" onclick="nextQuestion()">Next Question ➔</button>
+        `;
+    };
+
+    window.nextQuestion = function() {
+        currentQ++;
+        if(currentQ < quizData.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    };
+
+    function showResults() {
+        document.getElementById('progress-fill').style.width = `100%`;
+        let message = score > 15 ? "Master Paleontologist! 🦖" : "Great Explorer! 🔍";
+        document.getElementById('quiz-content').innerHTML = `
+            <div class="score-screen">
+                <span class="result-emoji">🏆</span>
+                <h2>${message}</h2>
+                <p>You unlocked ${score} out of ${quizData.length} logic points.</p>
+                <div style="font-size: 3rem; color: var(--raspberry); font-weight: 800; margin: 20px 0;">${Math.round((score/20)*100)}%</div>
+                <button class="next-btn" style="float:none" onclick="location.reload()">Restart Atelier</button>
+            </div>`;
+    }
+
+    loadQuestion();
+</script>
+</body>
+</html>
