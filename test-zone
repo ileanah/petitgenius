@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petit Genius | Kinetic Logic Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --klein-blue: #002FA7;
+            --aquamarine: #B5FFE1;
+            --white: #FFFFFF;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--klein-blue);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* HUD Overlay */
+        #ui-layer {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: var(--white);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        h1 { font-size: 1.5rem; margin: 0; letter-spacing: 1px; }
+        p { color: var(--aquamarine); opacity: 0.8; margin-top: 5px; }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            cursor: crosshair;
+        }
+
+        .kinetic-node {
+            position: absolute;
+            background: var(--aquamarine);
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 20px rgba(181, 255, 225, 0.4);
+        }
+
+        .instruction {
+            position: absolute;
+            bottom: 40px;
+            width: 100%;
+            text-align: center;
+            color: var(--white);
+            font-size: 0.9rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <h1>KINETIC LOGO LAB</h1>
+        <p>Interactive Visualization // 2026</p>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div class="instruction">Move mouse or tap to influence the logic field</div>
+
+    <script>
+        const container = document.getElementById('canvas-container');
+        const nodes = [];
+        const nodeCount = 40;
+
+        // Initialize Nodes
+        for (let i = 0; i < nodeCount; i++) {
+            const el = document.createElement('div');
+            el.className = 'kinetic-node';
+            
+            const size = Math.random() * 15 + 5;
+            el.style.width = `${size}px`;
+            el.style.height = `${size}px`;
+            
+            const node = {
+                el: el,
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2,
+                size: size
+            };
+            
+            container.appendChild(el);
+            nodes.push(node);
+        }
+
+        let mouseX = -1000;
+        let mouseY = -1000;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        window.addEventListener('touchstart', (e) => {
+            mouseX = e.touches[0].clientX;
+            mouseY = e.touches[0].clientY;
+        });
+
+        function animate() {
+            nodes.forEach(node => {
+                // Natural movement
+                node.x += node.vx;
+                node.y += node.vy;
+
+                // Mouse interaction (Repulsion logic)
+                const dx = mouseX - node.x;
+                const dy = mouseY - node.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < 200) {
+                    const force = (200 - distance) / 200;
+                    node.vx -= (dx / distance) * force * 0.5;
+                    node.vy -= (dy / distance) * force * 0.5;
+                }
+
+                // Friction
+                node.vx *= 0.98;
+                node.vy *= 0.98;
+
+                // Boundary check
+                if (node.x < 0) node.x = window.innerWidth;
+                if (node.x > window.innerWidth) node.x = 0;
+                if (node.y < 0) node.y = window.innerHeight;
+                if (node.y > window.innerHeight) node.y = 0;
+
+                // Update DOM
+                node.el.style.transform = `translate(${node.x}px, ${node.y}px)`;
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            nodes.forEach(node => {
+                node.x = Math.random() * window.innerWidth;
+                node.y = Math.random() * window.innerHeight;
+            });
+        });
+    </script>
+</body>
+</html>
